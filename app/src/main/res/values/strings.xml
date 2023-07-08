@@ -1,3 +1,11 @@
 <resources>
-    <string name="app_name">Weather App</string>
+    <string name="app_name">My Weather App</string>
+    <string name="city_name">St. Paul, MN</string>
+    <string name="real_temp">72</string>
+    <string name="feel_temp">78</string>
+    <string name="picture">Clear Sky Day</string>
+    <string name="low_temp">65</string>
+    <string name="high_temp">80</string>
+    <string name="humidity">100</string>
+    <string name="pressure">1023</string>
 </resources>
