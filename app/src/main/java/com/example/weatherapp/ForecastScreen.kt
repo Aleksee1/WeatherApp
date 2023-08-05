@@ -33,12 +33,12 @@ import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ForecastScreenView(viewModel: ForecastViewModel = hiltViewModel()) {
+fun ForecastScreenView(myZipCode: String, viewModel: ForecastViewModel = hiltViewModel()) {
 
     val forecastData = viewModel.forecastConditionsData.observeAsState()
 
     LaunchedEffect(Unit) {
-        viewModel.viewAppeared()
+        viewModel.viewAppeared(myZipCode)
     }
 
     val forecastItems = mutableListOf<DayForecast>()

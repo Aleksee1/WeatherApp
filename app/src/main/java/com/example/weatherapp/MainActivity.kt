@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -18,11 +19,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -41,6 +47,8 @@ import com.example.weatherapp.ui.theme.WeatherAppTheme
 import coil.compose.AsyncImage
 import dagger.hilt.android.AndroidEntryPoint
 
+var zipCode = "55346"
+
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,7 +63,7 @@ class MainActivity : ComponentActivity() {
                             MainScreenView(navController)
                         }
                         composable("ForecastScreen") {
-                            ForecastScreenView()
+                            ForecastScreenView(zipCode)
                         }
                     }
                 }
@@ -71,7 +79,7 @@ fun MainScreenView(navController: NavController, viewModel: WeatherViewModel = h
     val weatherData = viewModel.currentConditionsData.observeAsState()
 
     LaunchedEffect(Unit) {
-        viewModel.viewAppeared()
+        viewModel.viewAppeared(zipCode)
     }
 
     Scaffold (
@@ -164,17 +172,80 @@ fun MainScreenView(navController: NavController, viewModel: WeatherViewModel = h
                         )
                     }
                 }
+                Spacer(
+                    modifier = Modifier.size(20.dp)
+                )
+                var myText by remember { mutableStateOf("") }
+                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center)
+                {
+                    TextField(
+                        value = myText,
+                        onValueChange = { myText = it },
+                        label = { Text("Enter Zip Code") },
+                    )
+                }
+                Spacer(
+                    modifier = Modifier.size(20.dp)
+                )
+                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center)
+                {
+                    val myAlert = remember { mutableStateOf(false)  }
+                    Button(
+                        onClick = {
+                            if (myText.length == 5 && isNumeric(myText)) {
+                                zipCode = myText
+                                viewModel.viewAppeared(zipCode)
+                            } else {
+                                myAlert.value = true
+                            }
+                        },
+                        shape = RectangleShape,
+                        colors = ButtonDefaults.buttonColors(Color.LightGray),
+                    ) {
+                        Text(
+                            text = stringResource(R.string.zip_button),
+                            fontSize = 20.sp,
+                            color = Color.Black,
+                            modifier = Modifier.padding(horizontal = 30.dp, vertical = 5.dp),
+                        )
+                    }
+                    if (myAlert.value) {
+                        AlertDialog(
+                            onDismissRequest = {
+                                myAlert.value = false
+                            },
+                            title = {
+                                Text(text = "Invalid Zip Code")
+                            },
+                            text = {
+                                Text("Your zip code needs to be 5 integers")
+                            },
+                            confirmButton = {
+                                Button(
+                                    onClick = {
+                                        myAlert.value = false
+                                    }
+                                ) {
+                                    Text("OK")
+                                }
+                            },
+                        )
+                    }
+                }
             }
         }
     }
 }
 
+fun isNumeric(checkString: String): Boolean {
+    return checkString.all { char -> char.isDigit() }
+}
 
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
     Text(
-            text = "Hello $name!",
-            modifier = modifier
+        text = "Hello $name!",
+        modifier = modifier
     )
 }
 
